@@ -1,0 +1,681 @@
+#include<bits/bits-stdc++.h>		
+#define INF INT_MAX
+
+
+
+using namespace std;
+
+class Edge
+{
+public:
+	int destNodeID;
+	int weight;
+
+
+	//default constructor
+	Edge() {}
+
+	//A constructor
+	Edge(int destNodeID, int weight) {
+		this->destNodeID = destNodeID;
+		this->weight = weight;
+	}
+
+	//the rest of the functions in this class are just a bunch of getters and setters to set values of destination nodes and their weights and to return them 
+	void setEdgeValues(int destNodeID, int weight) {
+		this->destNodeID = destNodeID;
+		this->weight = weight;
+	}
+
+	void setWeight(int weight) {
+		this->weight = weight;
+	}
+
+	int getDestNodeID() {
+		return destNodeID;
+	}
+
+	int getWeight() {
+		return weight;
+	}
+};
+
+
+class Node
+{
+public:
+	int townID;
+	string town_name;
+
+
+	/*Any "Edge" object we create will be stored in this list, , so if we imagine a box that contains everything about a certain
+	town, it will have the town's ID, name, and all the edges connected to it.
+	i used the LIST STL bc the edes are non contagious/ not connected to each other*/
+	list<Edge> edgeList;
+
+	//default constructor
+	Node() {
+		townID = 0;
+		town_name = "";
+	}
+
+	//A constructor
+	Node(int townID, string town_name) {
+		this->townID = townID;
+		this->town_name = town_name;
+	}
+
+	//the next five functions are setters and getters
+	void setTownID(int townID) {
+		this->townID = townID;
+	}
+
+	void setTown_name(string town_name) {
+		this->town_name = town_name;
+	}
+
+	int getTownID() {
+		return townID;
+	}
+
+	string getTown_name() {
+		return town_name;
+	}
+
+	list<Edge> getEdgeList() {
+		return edgeList;
+	}
+	// loops over the edge list and print the destination nodes and the weights, is used in the print graph function
+	void printEdgeList() {
+		cout << "[";
+		for (auto it = edgeList.begin(); it != edgeList.end(); it++) {
+			cout << it->getDestNodeID() << "(" << it->getWeight() << ") -->";
+		}
+
+		cout << "]";
+		cout << endl;
+	}
+
+};
+
+
+class Graph
+{
+public:
+	/*this is simply a dynamic array that contains the nodes objects of the grapgh
+	so if we imagine the edgeList as a box that contains everything about a certain town, imagine this as a bigger box
+	that contains all the boxes (???)*/
+	vector<Node> nodes;
+
+
+
+	//we pass ID of a node, if it matches with an ID of a node in the vector of nodes, return that node
+	Node getNodeByID(int nID) {
+		Node temp;
+		for (int i = 0; i < nodes.size(); i++) {
+			//temp stores the node at (i) index; if it's equal the ID we passes, the fuction returns this temp aka teh town with that ID
+			temp = nodes.at(i);
+			if (temp.getTownID() == nID) {
+				return temp;
+			}
+			return temp;
+		}
+	}
+
+
+	//we pass ID of the town and the function loops over the array of vertices, if the ID got matched it returns true, if not, it returns false
+	bool checkIfNodeExistsByID(int nID) {
+		for (int i = 0; i < nodes.size(); i++) {
+			//nodes.at(i) is the same as arr[i] but in the sense of vectors
+			if (nodes.at(i).getTownID() == nID) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	void addNode(Node newNode) {
+
+		bool check = checkIfNodeExistsByID(newNode.getTownID());
+		if (check == true) {
+			cout << "whoops! A node with this ID already exists" << endl;
+		}
+		else {
+			//if the ID doesn't exist already we add it to the vector
+			nodes.push_back(newNode);
+			cout << "A new node is successfully added" << endl;
+		}
+	}
+
+
+	//
+
+
+	void addEdgeByID(int startingNode, int destNode, int weight) {
+		//check1 and check2 makes sure that the first and the second nodes exist so we can connect them with an egde
+		bool check1 = checkIfNodeExistsByID(startingNode);
+		bool check2 = checkIfNodeExistsByID(destNode);
+		if ((check1 && check2 == true)) {
+
+
+
+			//this simply pushes the nodes connected to the first node by an edge to the edgelist and to the vector of nodes
+			for (int i = 0; i < nodes.size(); i++) {
+				if (nodes.at(i).getTownID() == startingNode) {
+					Edge e(weight, destNode);
+					nodes.at(i).edgeList.push_back(e);
+				}
+				//this makes it undirected graph
+				else if (nodes.at(i).getTownID() == destNode) {
+					Edge e(weight, startingNode);
+					nodes.at(i).edgeList.push_back(e);
+				}
+			}
+			cout << "Edge between " << startingNode << "and " << destNode << "is added successfully" << endl;
+
+		}
+		else {
+			cout << "whoops! Invallid node ID";
+		}
+	}
+
+	void updateNode(int oldVID, string vname) {
+		bool check = checkIfNodeExistsByID(oldVID);
+		if (check == true) {
+			for (int i = 0; i < nodes.size(); i++) {
+				if (nodes.at(i).getTownID() == oldVID) {
+					nodes.at(i).setTown_name(vname);
+					break;
+				}
+			}
+			cout << "Vertex(State) Updated Successfully " << endl;
+		}
+	}
+
+	void deleteEdgeByID(int startingNode, int destNode) {
+
+		if (true) {
+			for (int i = 0; i < nodes.size(); i++) {
+				if (nodes.at(i).getTownID() == startingNode) {
+					for (auto it = nodes.at(i).edgeList.begin(); it != nodes.at(i).edgeList.end(); it++) {
+						if (it->getDestNodeID() == destNode) {
+							nodes.at(i).edgeList.erase(it);
+							break;
+						}
+
+					}
+				}
+				if (nodes.at(i).getTownID() == destNode) {
+					for (auto it = nodes.at(i).edgeList.begin(); it != nodes.at(i).edgeList.end(); it++) {
+						if (it->getDestNodeID() == startingNode) {
+							nodes.at(i).edgeList.erase(it);
+							break;
+						}
+					}
+				}
+			}
+
+
+		}
+		cout << "Edge between " << startingNode << "and " << destNode << "is deleted successfully!!" << endl;
+	}
+	/*takes an ID, loops over the vector of nodes, get the node that has that ID
+	then iterates over the edgelist and delete that node from it*/
+	void deleteNodeByID(int nID) {
+		int node_index = 0;
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes.at(i).getTownID() == nID) {
+				node_index = i;
+			}
+		}
+		for (auto it = nodes.at(node_index).edgeList.begin(); it != nodes.at(node_index).edgeList.end(); it++) {
+			deleteEdgeByID(it->getDestNodeID(), nID);
+		}
+		nodes.erase(nodes.begin() + node_index);
+		cout << "Town deleted successfully!" << endl;
+	}
+
+	void updateEdgeByID(int startingNode, int destNode, int new_weight) {
+
+
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes.at(i).getTownID() == startingNode) {
+				for (auto it = nodes.at(i).edgeList.begin(); it != nodes.at(i).edgeList.end(); it++) {
+					if (it->getDestNodeID() == destNode) {
+						it->setWeight(new_weight);
+						break;
+					}
+				}
+			}
+			else if (nodes.at(i).getTownID() == destNode) {
+				for (auto it = nodes.at(i).edgeList.begin(); it != nodes.at(i).edgeList.end(); it++) {
+					if (it->getDestNodeID() == startingNode) {
+						it->setWeight(new_weight);
+						break;
+					}
+				}
+			}
+		}
+		cout << "Edge weight is updated successfully " << endl;
+
+
+	}
+	//bonus mesh moshkela delwa2ty
+	void getAllNeigborsByID(int vid) {
+		cout << getNodeByID(vid).getTownID() << " (" << getNodeByID(vid).getTownID() << ") --> ";
+		for (int i = 0; i < nodes.size(); i++) {
+			if (nodes.at(i).getTownID() == vid) {
+				cout << "[";
+				for (auto it = nodes.at(i).edgeList.begin(); it != nodes.at(i).edgeList.end(); it++) {
+					cout << it->getDestNodeID() << "(" << it->getWeight() << ") --> ";
+				}
+				cout << "]";
+
+			}
+		}
+	}
+
+};
+
+
+int minDistance(int dist[], bool sptSet[], int V)
+{
+
+
+	int min = INT_MAX, min_i;
+
+	for (int v = 0; v < V; v++)
+		if (sptSet[v] == false && dist[v] <= min)
+			min = dist[v], min_i = v;
+
+	return min_i;
+}
+
+void printSolution(int dist[], int V, int source, int target)
+{
+	for (int i = 0; i < V; i++) {
+		if (i == source) {
+			if (dist[target] > 100000 || dist[target] < 0) {
+				cout << "The distance from " << source << " to the target " << target << " is: Invalid, nothing connects both" << endl;
+			}
+			else
+			{
+				cout << "The distance from " << source << " to the target " << target << " is: " << dist[target] << endl;
+			}
+		}
+	}
+}
+
+void dijkstra(int** gra, int src, int V, int source, int target)
+{
+	int* dist = new int[V];
+
+	bool* sptSet = new bool[V];
+
+
+	for (int i = 0; i < V; i++)
+		dist[i] = INT_MAX, sptSet[i] = false;
+
+	dist[src] = 0;
+
+
+	for (int count = 0; count < V - 1; count++) {
+
+		int u = minDistance(dist, sptSet, V);
+
+
+		sptSet[u] = true;
+
+
+		for (int v = 0; v < V; v++)
+
+
+			if (!sptSet[v] && gra[u][v] && dist[u] != INT_MAX
+				&& dist[u] + gra[u][v] < dist[v])
+				dist[v] = dist[u] + gra[u][v];
+	}
+
+
+	printSolution(dist, V, source, target);
+}
+
+void printGraph(int** gra, int m) {
+	for (int i = 0; i < m; i++) {
+		cout << endl;
+		cout << i;
+		for (int j = 0; j < m; j++)
+			if (j == i) {
+
+			}
+			else if (gra[i][j] < 0 || gra[i][j]>100000) {
+
+			}
+			else {
+				cout << " -- > " << j << "(" << gra[i][j] << ")";
+			}
+	}
+	cout << endl;
+
+}
+void save_graph(int** graph, int m) {
+	fstream file("Graph.txt", std::ios_base::app);
+	file.seekg(file.tellg(), std::ios::end);
+	file << "Graph: " << endl;
+	for (int i = 0; i < m; i++) {
+		file << endl;
+		file << i;
+		for (int j = 0; j < m; j++)
+			if (j == i) {
+
+			}
+			else if (graph[i][j] < 0 || graph[i][j]>100000) {
+
+			}
+			else {
+				file << " -- > " << j << "(" << graph[i][j] << ")";
+			}
+	}
+	file << endl;
+	file << endl << "End of graph" << endl;
+	file << endl;
+	cout << "Graph saved successfully!" << endl;
+}
+
+//READ FILES
+void read_graph(int** graph, int m) {
+	fstream myFile;
+	myFile.open("Graph.txt", ios::in);
+	if (myFile.is_open()) {
+		string line;
+		while (getline(myFile, line)) {
+			cout << line << endl;
+		}
+		myFile.close();
+
+	}
+}
+
+void clear_file() {
+	fstream file("Graph.txt", std::ofstream::out | std::ofstream::trunc);
+	file.close();
+	cout << "File cleared!!" << endl;
+}
+
+
+
+
+int main() {
+	Graph g;
+	int m = 3;
+	int** gra = new int* [m];
+	for (int i = 0; i < m; i++) {
+
+
+		gra[i] = new int[m];
+	}
+	for (int i = 0; i < m; i++) {
+		for (int j = 0; j < m; j++) {
+			gra[i][j] = INF;
+		}
+	}
+	int numNodes, numEdges;
+	vector <Node> nodes;
+	string sname;
+	int id1, id2, w;
+	int option;
+	bool check;
+
+	do {
+		cout << "What operation do you want to perform? " <<
+			" Select Option number. Enter 0 to exit." << endl;
+		cout << "1. Add graph." << endl;
+		cout << "2. Update graph." << endl;
+		cout << "3. Get all neighbours of a vertex(state)." << endl;
+		cout << "4. Print Graph." << endl;
+		cout << "5. Get the shortest distance between two cities." << endl;
+		cout << "6. Save graph in a txt file." << endl;
+		cout << "7. Clear graph file." << endl;
+		cout << "8. To show all saved graphs." << endl;
+		cout << "0. Exit Program." << endl;
+
+		cin >> option;
+		Node v1;
+
+		switch (option) {
+		case 0:
+
+			break;
+
+		case 1:
+			cout << "Add Graph Operation -" << endl;
+			cout << "FOR THE TOWNS--" << endl;
+			cout << "Enter the number of Towns: " << endl;
+			cin >> numNodes;
+			m = numNodes;
+			gra = new int* [m];
+			for (int i = 0; i < m; i++) {
+
+
+				gra[i] = new int[m];
+			}
+			for (int i = 0; i < m; i++) {
+				for (int j = 0; j < m; j++) {
+					if (i == j) {
+						gra[i][j] = 0;
+					}
+					else {
+						gra[i][j] = INF;
+					}
+				}
+			}
+			for (int i = 0; i < numNodes; i++) {
+				cout << "Enter State ID :";
+				cin >> id1;
+				cout << "Enter State Name :";
+				cin >> sname;
+				v1.setTownID(id1);
+				v1.setTown_name(sname);
+				g.addNode(v1);
+			}
+			char b;
+			cout << "FOR THE EDGES--" << endl;
+			cout << "Enter the number of edges: " << endl;
+			cin >> numEdges;
+			cout << "Choose 'D' for directed and 'U' for undirected :" << endl;
+			cin >> b;
+			if (b == 'D') {
+				for (int i = 0; i < numEdges; i++) {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					cout << "Enter Weight of Edge: ";
+					cin >> w;
+					gra[id1][id2] = w;
+
+					g.addEdgeByID(id1, id2, w);
+				}
+			}
+			else if (b == 'U') {
+				for (int i = 0; i < numEdges; i++) {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					cout << "Enter Weight of Edge: ";
+					cin >> w;
+					gra[id1][id2] = w;
+					gra[id2][id1] = w;
+					g.addEdgeByID(id1, id2, w);
+				}
+			}
+			break;
+		case 2:
+			int option2;
+			cout << "1. Add Vertex" << endl;
+			cout << "2. Update Vertex" << endl;
+			cout << "3. Delete Vertex" << endl;
+			cout << "4. Add Edge" << endl;
+			cout << "5. Update Edge" << endl;
+			cout << "6. Delete Edge" << endl;
+			cout << "0. Return" << endl;
+			cin >> option2;
+
+			switch (option2) {
+			case 0:
+				break;
+
+			case 1:
+				cout << "Add Vertex Operation -" << endl;
+				cout << "Enter State ID :";
+				cin >> id1;
+				cout << "Enter State Name :";
+				cin >> sname;
+				v1.setTownID(id1);
+				v1.setTown_name(sname);
+				g.addNode(v1);
+
+				break;
+
+			case 2:
+				cout << "Update Vertex Operation -" << endl;
+				cout << "Enter State ID of Vertex(State) to update :";
+				cin >> id1;
+				cout << "Enter State Name :";
+				cin >> sname;
+				g.updateNode(id1, sname);
+
+				break;
+
+			case 3:
+				cout << "Delete Vertex Operation -" << endl;
+				cout << "Enter ID of Vertex(State) to Delete : ";
+				cin >> id1;
+				g.deleteNodeByID(id1);
+
+				break;
+
+			case 4:
+				cout << "Add Edge Operation -" << endl;
+
+
+				if (b == 'D') {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					cout << "Enter Weight of Edge: ";
+					cin >> w;
+					gra[id1][id2] = w;
+
+					g.addEdgeByID(id1, id2, w);
+
+				}
+				else if (b == 'U') {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					cout << "Enter Weight of Edge: ";
+					cin >> w;
+					gra[id1][id2] = w;
+					gra[id2][id1] = w;
+					g.addEdgeByID(id1, id2, w);
+
+				}
+				break;
+
+			case 5:
+				cout << "Update Edge Operation -" << endl;
+
+				if (b == 'D') {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					cout << "Enter  Updated Weight of Edge: ";
+					cin >> w;
+					gra[id1][id2] = w;
+
+					g.addEdgeByID(id1, id2, w);
+
+				}
+				if (b == 'U') {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					cout << "Enter Updated Weight of Edge: ";
+					cin >> w;
+					gra[id1][id2] = w;
+					gra[id2][id1] = w;
+					g.addEdgeByID(id1, id2, w);
+
+				}
+				break;
+
+			case 6:
+				cout << "Delete Edge Operation -" << endl;
+				if (b == 'D') {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					gra[id1][id2] = INF;
+
+					g.deleteEdgeByID(id1, id2);
+				}
+				if (b == 'U') {
+					cout << "Enter ID of Source Vertex(State): ";
+					cin >> id1;
+					cout << "Enter ID of Destination Vertex(State): ";
+					cin >> id2;
+					gra[id1][id2] = INF;
+					gra[id2][id1] = INF;
+					g.deleteEdgeByID(id1, id2);
+				}
+
+				break;
+
+			}
+			break;
+		case 3:
+			cout << "Print All Neigbors of a Vertex -" << endl;
+			cout << "Enter ID of Vertex(State) to fetch all Neigbors : ";
+			cin >> id1;
+			g.getAllNeigborsByID(id1);
+
+			break;
+		case 4:
+			cout << "Print Graph Operation -" << endl;
+			printGraph(gra, m);
+
+			break;
+
+		case 5:
+			cout << "enter the ID of the source city -" << endl;
+			cin >> id1;
+			cout << "enter the ID of the destination city -" << endl;
+			cin >> id2;
+			dijkstra(gra, id1, m, id1, id2);
+			break;
+
+		case 6:
+			save_graph(gra, m);
+			break;
+		case 7:
+			clear_file();
+			break;
+		case 8:
+			read_graph(gra,m);
+			break;
+		default:
+			cout << "Enter Proper Option number " << endl;
+		}
+		cout << endl;
+
+	} while (option != 0);
+
+	return 0;
+}
